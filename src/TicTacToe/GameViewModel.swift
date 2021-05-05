@@ -14,13 +14,28 @@ final class GameViewModel: ObservableObject {
         GridItem(.flexible())
     ]
     
+    let winPatterns: Set<Set<Int>> = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+    ]
+    
     @Published var moves: [Move?] = Array(repeating: nil, count: 9)
     @Published var isGameboardDisabled = false
     @Published var alertItem: AlertItem?
     
     func processPlayerMove(for position: Int) {
         isGameboardDisabled = true
-        if isSquareOccupied(in: moves, forIndex: position) { return }
+        
+        if isSquareOccupied(in: moves, forIndex: position) {
+            return
+        }
+        
         moves[position] = Move(player: .human, boardIndex: position)
        
         if checkWinCondition(for: .human, in: moves) {
@@ -49,19 +64,8 @@ final class GameViewModel: ObservableObject {
     }
     
     func determineComputerMovePosition(in moves: [Move?]) -> Int {
-        let winPatterns: Set<Set<Int>> = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ]
-        
         // If AI can win, then win
-        let computerMoves = moves.compactMap{ $0 }.filter{ $0.player == .computer }
+        let computerMoves = moves.compactMap { $0 }.filter{ $0.player == .computer }
         let computerPositions = Set(computerMoves.map { $0.boardIndex })
         
         for pattern in winPatterns {
@@ -69,7 +73,9 @@ final class GameViewModel: ObservableObject {
             
             if winPositions.count == 1 {
                 let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
-                if isAvailable { return winPositions.first! }
+                if isAvailable {
+                    return winPositions.first!
+                }
             }
         }
         
@@ -82,7 +88,9 @@ final class GameViewModel: ObservableObject {
             
             if winPositions.count == 1 {
                 let isAvailable = !isSquareOccupied(in: moves, forIndex: winPositions.first!)
-                if isAvailable { return winPositions.first! }
+                if isAvailable {
+                    return winPositions.first!
+                }
             }
         }
        
@@ -103,17 +111,6 @@ final class GameViewModel: ObservableObject {
     }
     
     func checkWinCondition(for player: Player, in moves: [Move?]) -> Bool {
-        let winPatterns: Set<Set<Int>> = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
-        ]
-        
         let playerMoves = moves.compactMap{ $0 }.filter{ $0.player == player }
         let playerPositions = Set(playerMoves.map { $0.boardIndex })
         
